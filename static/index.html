@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="ФРЭД — интеллектуальный ИИ-репетитор по математике. Подготовка к ЕГЭ, контрольным работам с 6 по 11 класс. Индивидуальный план, наглядная статистика, 100+ тыс. заданий.">
+    <title>ФРЭД — ИИ-репетитор по математике</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667EEA'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='white' font-size='40' font-weight='bold' font-family='Arial'%3EФ%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.5;
+            color: #333333;
+            overflow-x: hidden;
+        }
+
+        /* Контейнер с максимальной шириной */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background: #3a4650;
+            width: 100%;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 0 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 14px;
+            color: #fff;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #667EEA;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ========== HERO БЛОК (градиент) ========== */
+        .hero {
+            background: linear-gradient(
+    to top, /* Направление градиента: снизу вверх */
+    #4f5d68, /* Нижний цвет */
+    #79acbd  /* Верхний цвет */
+  );
+  padding: 0;
+    position: relative;
+			
+    }
+
+.hero-container {
+        max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: stretch;  /* ← МЕНЯЕМ */
+    gap: 50px;
+    flex-wrap: wrap;
+    position: relative;
+	min-height: 500px;  /* ← минимальная высота */
+}
+
+.hero-image {
+    flex: 1;
+    min-width: 250px;
+    margin-top: auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;  /* ← растягиваем на всю высоту родителя */
+}
+
+.hero-image img {
+     width: auto;
+    
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+
+.hero-content {
+     flex: 1;
+    margin-top: 60px;
+    margin-bottom: 60px;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+    display: inline-block;
+    background: white;
+    color: #667EEA;
+    padding: 14px 32px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-3px);
+}
+
+.btn-hero-secondary {
+    display: inline-block;
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-hero-secondary:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 40px 0;
+    }
+    .hero-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-content h1 {
+        font-size: 28px;
+    }
+    .hero-buttons {
+        justify-content: center;
+    }
+}
+
+
+        /* ========== СИНИЙ БАННЕР ========== */
+        .blue-banner {
+            background: #6a7a88;
+            color: white;
+            text-align: center;
+            padding: 48px 20px;
+        }
+
+        .blue-banner p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* ========== СЕКЦИИ ========== */
+        .section {
+            padding: 60px 0;
+            background: #FFFFFF;
+        }
+
+        .section.light-bg {
+            background: #F8F9FA;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 48px;
+            font-weight: bold;
+        }
+
+        .two-columns {
+            display: flex;
+            gap: 200px;  /* увеличьте gap для большего расстояния */
+            flex-wrap: wrap;
+			padding-left: 80px;  /* ← отступ слева для всего блока */
+        }
+
+      /* Правильный паттерн для скрытого текста (рекомендован Google) */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+/* Стили для иконок */
+.icon-col {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* ← центрирует иконку по горизонтали */
+}
+
+.icon-wrapper {
+    position: relative;
+    width: 220px;
+    margin: 0 auto;
+}
+
+.section-icon {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.icon-label {
+    position: absolute;
+    bottom: 6px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    background: #3a4650;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin: 0 10px;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .two-columns {
+            display: flex;
+            gap: 60px;  /* увеличьте gap для большего расстояния */
+            flex-wrap: wrap;
+			padding-left: 20px;  /* ← отступ слева для всего блока */
+        }
+}
+
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .features-list li i {
+            color: #27ae60;
+            font-size: 18px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ========== КНОПКИ CTA ========== */
+        .buttons-row {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 40px;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 0 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667EEA;
+            border: 2px solid #667EEA;
+        }
+
+        .btn-outline:hover {
+            background: #667EEA;
+            color: white;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: #3a4650;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        /* ========== АДАПТИВНОСТЬ ========== */
+        @media (max-width: 767px) {
+            .header {
+                position: relative;
+                justify-content: space-between;
+            }
+            .nav {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 12px;
+                padding: 20px 0;
+                background: white;
+                border-top: 1px solid #e0e0e0;
+                margin-top: 10px;
+            }
+            .nav.open {
+                display: flex;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .hero {
+                padding: 40px 0;
+                min-height: auto;
+            }
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 28px;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .btn-hero-primary, .btn-hero-secondary {
+                padding: 12px 24px;
+            }
+            .two-columns {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .section-title {
+                font-size: 28px;
+            }
+            .btn {
+                display: block;
+                width: 80%;
+                margin: 10px auto;
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .hero {
+                padding: 50px 0;
+            }
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            .two-columns {
+                gap: 30px;
+            }
+        }
+
+        /* Анимация при скролле */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="#" class="logo">ФРЭД</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="nav" id="mainNav">
+            <a href="#about">О платформе</a>
+            <a href="#faq">Задать вопрос</a>
+            <a href="#tariffs">Тарифы</a>
+            <a href="#contacts">Контакты</a>
+        </nav>
+    </header>
+
+    <!-- HERO БЛОК (градиент + Фрэд) -->
+  <section class="hero">
+    <div class="hero-container">
+        <div class="hero-image">
+                <img src="/static/images/repetitor.png" 
+                     alt="репетитор по математике">
+             </div>
+        <div class="hero-content">
+            <h1>ФРЭД – интеллектуальный<br>ИИ-репетитор по математике</h1>
+            <p class="hero-subtitle">Персональный наставник, который поможет сдать ЕГЭ на 80+ баллов</p>
+            <div class="hero-buttons">
+                <a href="/static/choose-role.html" class="btn-hero-primary">🚀 Начать обучение</a>
+                <a href="#about" class="btn-hero-secondary">📖 Узнать больше</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- СИНИЙ БАННЕР -->
+    <section class="blue-banner">
+        <p>ФРЭД — дружелюбный и очень умный ИИ-репетитор, учитель, который раскроет для вашего ребёнка всю красоту математических формул и теорий.</p>
+    </section>
+
+    <!-- СЕКЦИЯ: Преимущества платформы -->
+    <section class="section" id="about">
+        <div class="container">
+            <h2 class="section-title">Преимущества платформы</h2>
+            <div class="two-columns">
+    <!-- Для ученика -->
+    <div class="col icon-col">
+        <div class="icon-wrapper">
+            <img src="/static/images/icon_uchenik_2.png" alt="Индивидуальный план и наглядная статистика" class="section-icon">
+            <div class="icon-label">Для ученика</div>
+             </div>
+            </div>
+    <div class="col">
+        <ul class="features-list">
+            <li><i class="fas fa-check"></i> Индивидуальный учебный план с привязкой к календарю</li>
+            <li><i class="fas fa-check"></i> Наглядная статистика прогресса</li>
+            <li><i class="fas fa-check"></i> Широкая теоретическая база с иллюстрациями</li>
+            <li><i class="fas fa-check"></i> Доступ к 100+ тыс. заданий</li>
+            <li><i class="fas fa-check"></i> Задания по уровням сложности</li>
+            <li><i class="fas fa-check"></i> Разные режимы обучения</li>
+            <li><i class="fas fa-check"></i> Напоминания и уведомления</li>
+        </ul>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <!-- СЕКЦИЯ: Для родителей -->
+    <section class="section light-bg">
+        <div class="container">
+           <div class="two-columns">
+    <!-- Для родителей -->
+    <div class="col icon-col">
+        <div class="icon-wrapper">
+            <img src="/static/images/icon_rodit_2.png" alt="Контроль прогресса и помощь ребёнку" class="section-icon">
+            <div class="icon-label">Для родителей</div>
+            </div>
+        
+    </div>
+    <div class="col">
+        <ul class="features-list">
+            <li><i class="fas fa-chart-line"></i> Наглядная статистика прогресса ребёнка</li>
+            <li><i class="fas fa-lightbulb"></i> Понимание математики на уровне теории</li>
+            <li><i class="fas fa-home"></i> Помощь с домашними заданиями</li>
+            <li><i class="fas fa-clock"></i> Развитие навыков планирования и тайминга</li>
+        </ul>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <!-- СЕКЦИЯ: Для учителей -->
+    <section class="section">
+        <div class="container">
+           <div class="two-columns">
+    <!-- Для учителей -->
+    <div class="col icon-col">
+        <div class="icon-wrapper">
+            <img src="/static/images/icon_ticher_2.png" alt="Инструменты для работы с классом" class="section-icon">
+            <div class="icon-label">Для учителей</div>
+            </div>       
+    </div>
+    <div class="col">
+        <ul class="features-list">
+            <li><i class="fas fa-book-open"></i> Теоретическая база с презентациями</li>
+            <li><i class="fas fa-users"></i> Удобный функционал для работы с учениками</li>
+        </ul>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <!-- КНОПКИ CTA -->
+    <section class="buttons-row">
+        <a href="#" class="btn btn-outline" id="askQuestionBtn"><i class="fas fa-question-circle"></i> Задать вопрос</a>
+        <a href="/static/choose-role.html" class="btn btn-primary" id="startBtn">🚀 СТАРТ</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>ФРЭД образовательная платформа &nbsp;&nbsp;|&nbsp;&nbsp; 2026</p>
+    </footer>
+
+    <script>
+        // Бургер-меню
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const mainNav = document.getElementById('mainNav');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                mainNav.classList.toggle('open');
+            });
+        }
+
+        // Анимация при скролле
+        const animatedElements = document.querySelectorAll('.section, .blue-banner, .hero');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        animatedElements.forEach(el => observer.observe(el));
+
+        // Обработчики кнопок
+        document.getElementById('askQuestionBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('📬 Чат с Фрэдом откроется здесь. Вы можете задать любой вопрос.');
+        });
+    </script>
+</body>
+</html>
