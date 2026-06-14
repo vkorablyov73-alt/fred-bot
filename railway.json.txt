@@ -1,0 +1,8 @@
+{
+    "build": {
+        "builder": "NIXPACKS"
+    },
+    "deploy": {
+        "startCommand": "hypercorn web_app:app --bind \"[::]:$PORT\""
+    }
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Выберите роль — ФРЭД</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667EEA'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='white' font-size='40' font-weight='bold' font-family='Arial'%3EФ%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            margin-bottom: 48px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 200px;
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .role-card i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .role-card.student i { color: #667EEA; }
+        .role-card.parent i { color: #27ae60; }
+        .role-card.teacher i { color: #e74c3c; }
+
+        .role-card span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .role-card small {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 650px) {
+            .role-card {
+                padding: 30px 20px;
+                min-width: 160px;
+            }
+            .role-card i {
+                font-size: 48px;
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 ВЫБЕРИТЕ ВАШУ РОЛЬ</h1>
+        <div class="role-buttons">
+            <a href="/static/chat-student.html" class="role-card student" data-role="student">
+                <i class="fas fa-user-graduate"></i>
+                <span>УЧЕНИК</span>
+                <small>Подготовка к ЕГЭ и контрольным</small>
+            </a>
+            <a href="/static/chat-parent.html" class="role-card parent" data-role="parent">
+                <i class="fas fa-users"></i>
+                <span>РОДИТЕЛЬ</span>
+                <small>Контроль прогресса ребёнка</small>
+            </a>
+            <a href="/static/chat-teacher.html" class="role-card teacher" data-role="teacher">
+                <i class="fas fa-chalkboard-user"></i>
+                <span>УЧИТЕЛЬ</span>
+                <small>Инструменты для работы с классом</small>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

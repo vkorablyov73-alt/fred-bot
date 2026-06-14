@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Моя статистика — Фрэд</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .card-header { text-align: center; margin-bottom: 24px; }
+        .card-header h1 { font-size: 28px; color: #2c3e50; margin-bottom: 8px; }
+        .card-header p { color: #666; font-size: 14px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+        .stat-card.highlight .stat-label { color: rgba(255,255,255,0.8); }
+        .progress-section { margin-bottom: 24px; }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .progress-fill.current { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+        .progress-fill.predicted { background: linear-gradient(90deg, #667eea, #764ba2); }
+        .motivation-box {
+            background: #e8f4fd;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-left: 4px solid #007aff;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        .weekly-goal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .goal-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .goal-value { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .goal-label { font-size: 11px; color: #666; margin-top: 4px; }
+        .btn-back {
+            display: block;
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .btn-back:hover { background: #1a252f; }
+        .loading { text-align: center; padding: 40px; color: white; }
+        @media (max-width: 500px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content" class="loading">📊 Загрузка статистики...</div>
+    </div>
+
+    <script>
+        function getUserId() {
+            let id = localStorage.getItem('fred_user_id');
+            if (!id) {
+                id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                localStorage.setItem('fred_user_id', id);
+            }
+            return id;
+        }
+
+        async function loadStats() {
+            const userId = getUserId();
+            const container = document.getElementById('content');
+            try {
+                const response = await fetch(`/api/stats?user_id=${userId}`);
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                const data = await response.json();
+                const currentPercent = (data.current_score / data.target_score) * 100;
+                const predictedPercent = (data.predicted_score / data.target_score) * 100;
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <h1>📊 Моя статистика</h1>
+                            <p>до ЕГЭ осталось ${data.days_until_exam} дней</p>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card"><div class="stat-value">${data.current_score}</div><div class="stat-label">Мой текущий балл</div></div>
+                            <div class="stat-card"><div class="stat-value">${data.target_score}+</div><div class="stat-label">Целевой балл</div></div>
+                            <div class="stat-card highlight"><div class="stat-value">${data.predicted_score}</div><div class="stat-label">Наиболее вероятный балл</div></div>
+                            <div class="stat-card"><div class="stat-value">${data.available_hours}</div><div class="stat-label">Доступно часов</div></div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label"><span>📈 Текущий прогресс</span><span>${data.current_score} / ${data.target_score}</span></div>
+                            <div class="progress-bar"><div class="progress-fill current" style="width: ${Math.min(100, currentPercent)}%"></div></div>
+                            <div class="progress-label" style="margin-top:16px"><span>🎯 Прогноз на ЕГЭ</span><span>${data.predicted_score} / ${data.target_score}</span></div>
+                            <div class="progress-bar"><div class="progress-fill predicted" style="width: ${Math.min(100, predictedPercent)}%"></div></div>
+                        </div>
+                        <div class="motivation-box">${data.motivation_message.replace(/\n/g, '<br>')}</div>
+                        <div style="text-align:center; margin:16px 0"><strong>🎯 Цель на неделю</strong></div>
+                        <div class="weekly-goal">
+                            <div class="goal-card"><div class="goal-value">${data.weekly_goal.hours_per_week}</div><div class="goal-label">часов занятий</div></div>
+                            <div class="goal-card"><div class="goal-value">+${data.weekly_goal.points_per_week}</div><div class="goal-label">баллов прогресса</div></div>
+                        </div>
+                    </div>
+                    <a href="/" class="btn-back">← Вернуться к Фрэду</a>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="card"><div style="text-align:center;color:#e74c3c;">❌ Ошибка загрузки<br><small>Проверьте сервер</small></div><a href="/" class="btn-back" style="margin-top:20px;">← Вернуться к Фрэду</a></div>`;
+            }
+        }
+        loadStats();
+    </script>
+</body>
+</html>

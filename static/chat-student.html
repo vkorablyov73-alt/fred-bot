@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ФРЭД — чат с учеником</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667EEA'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='white' font-size='40' font-weight='bold' font-family='Arial'%3EФ%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #667EEA;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* ЛЕВАЯ ЧАСТЬ — ИЗОБРАЖЕНИЕ ФРЭДА */
+        .fred-image {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 300px;
+        }
+
+        .fred-image img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 20px;
+            object-fit: contain;
+        }
+
+        /* ПРАВАЯ ЧАСТЬ — ЧАТ */
+        .chat-container {
+            flex: 2;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .message.fred {
+            background: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            background: #667EEA;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.typing {
+            background: #f0f0f0;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* ИНПУТ + КНОПКИ */
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-row button {
+            background: #667EEA;
+            border: none;
+            padding: 0 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid #667EEA;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: #667EEA;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #667EEA;
+            color: white;
+        }
+
+        /* АДАПТИВ */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .fred-image {
+                min-height: 200px;
+                max-height: 250px;
+            }
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='/static/choose-role.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="logo">🧮 ФРЭД</div>
+        <div style="width: 30px;"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="fred-image">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23F0F4FF' rx='20'/%3E%3Ccircle cx='150' cy='130' r='50' fill='%23667EEA'/%3E%3Ccircle cx='125' cy='120' r='5' fill='white'/%3E%3Ccircle cx='175' cy='120' r='5' fill='white'/%3E%3Cpath d='M120 160 Q150 190 180 160' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Crect x='110' y='200' width='80' height='40' fill='%23764BA2' rx='10'/%3E%3Ctext x='150' y='225' text-anchor='middle' fill='white' font-size='20' font-family='Arial' font-weight='bold'%3EФ%3C/text%3E%3C/svg%3E"
+                 alt="Фрэд">
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message fred" id="greetingMessage"></div>
+            </div>
+            <div class="input-area">
+                <div class="input-row">
+                    <input type="text" id="messageInput" placeholder="Напишите ответ..." disabled>
+                    <button id="sendBtn" disabled>📤</button>
+                </div>
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="action-btn" id="playBtn">🎮 Играть</button>
+                    <button class="action-btn" id="trialBtn">📚 Пробное занятие</button>
+                    <button class="action-btn" id="accessBtn">🔓 Доступ в систему</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Состояние диалога
+        let step = 0;  // 0-приветствие, 1-имя, 2-возраст, 3-класс, 4-финал
+        let userData = {
+            name: '',
+            age: '',
+            grade: ''
+        };
+        let isTyping = false;
+        let currentUserId = null;
+
+        // DOM элементы
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const actionButtons = document.getElementById('actionButtons');
+
+        // Получение/создание user_id
+        function getUserId() {
+            let id = localStorage.getItem('fred_user_id');
+            if (!id) {
+                id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                localStorage.setItem('fred_user_id', id);
+            }
+            return id;
+        }
+
+        // Эффект печатания
+        async function typeText(element, text, speed = 30) {
+            if (isTyping) return;
+            isTyping = true;
+            element.innerHTML = '';
+            for (let i = 0; i <= text.length; i++) {
+                element.innerHTML = text.substring(0, i);
+                await new Promise(resolve => setTimeout(resolve, speed));
+            }
+            isTyping = false;
+        }
+
+        // Добавление сообщения в чат
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'fred'}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+
+        // Отправка сообщения на сервер
+        async function sendToAI(message) {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        message: message,
+                        mode: 'study'
+                    })
+                });
+                const data = await response.json();
+                return data.reply;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                return "Извините, произошла ошибка. Попробуйте позже.";
+            }
+        }
+
+        // Сохранение контекста пользователя
+        async function saveUserContext() {
+            try {
+                await fetch('/api/user/context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        role: 'student',
+                        name: userData.name,
+                        age: userData.age,
+                        grade: userData.grade
+                    })
+                });
+            } catch (error) {
+                console.error('Ошибка сохранения контекста:', error);
+            }
+        }
+
+        // Запуск диалога
+        async function startDialog() {
+            const greetingDiv = document.getElementById('greetingMessage');
+            await typeText(greetingDiv, "Привет! Меня зовут ФРЭД. Я ИИ-помощник в освоении и постижении интересного мира формул — мира математики.\n\nДавай с тобой познакомимся. Напиши, как тебя зовут?");
+            step = 1;
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+
+        // Обработка ответов пользователя
+        async function handleUserInput(message) {
+            if (!message.trim()) return;
+
+            // Добавляем сообщение пользователя в чат
+            addMessage(message, true);
+
+            // Очищаем поле ввода
+            messageInput.value = '';
+
+            if (step === 1) {
+                // Сохраняем имя
+                userData.name = message;
+                step = 2;
+                const responseDiv = addMessage("", false);
+                await typeText(responseDiv, `${userData.name}, сколько тебе лет?`);
+            } else if (step === 2) {
+                // Сохраняем возраст
+                userData.age = message;
+                step = 3;
+                const responseDiv = addMessage("", false);
+                await typeText(responseDiv, `В каком ты классе учишься?`);
+            } else if (step === 3) {
+                // Сохраняем класс
+                userData.grade = message;
+                step = 4;
+                
+                // Сохраняем контекст в БД
+                await saveUserContext();
+                
+                // Финальное сообщение
+                const responseDiv = addMessage("", false);
+                await typeText(responseDiv, `Отлично, ${userData.name}! Хочешь поиграть в игру или пройти пробное занятие? Нажми кнопку внизу чата.`);
+                
+                // Показываем кнопки действий
+                actionButtons.style.display = 'flex';
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+            }
+        }
+
+        // Обработчики кнопок
+        function setupActionButtons() {
+            document.getElementById('playBtn').onclick = () => {
+                addMessage("🎮 Игра пока в разработке. Скоро появится!", false);
+            };
+            document.getElementById('trialBtn').onclick = () => {
+                window.location.href = '/static/diagnostic.html';
+            };
+            document.getElementById('accessBtn').onclick = () => {
+                window.location.href = '/static/app.html';
+            };
+        }
+
+        // Отправка сообщения
+        sendBtn.onclick = () => {
+            const message = messageInput.value.trim();
+            if (message && !isTyping) {
+                handleUserInput(message);
+            }
+        };
+
+        messageInput.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        };
+
+        // Инициализация
+        currentUserId = getUserId();
+        setupActionButtons();
+        startDialog();
+    </script>
+</body>
+</html>

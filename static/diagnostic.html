@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Диагностика — Фрэд</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .card-header h2 { color: #2c3e50; font-size: 1.25rem; }
+        .badge { background: #e9e9ef; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+        .progress-steps { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            background: #e9e9ef;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .step.active { background: #2c3e50; color: white; }
+        .step.completed { background: #27ae60; color: white; }
+        .question {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.75rem;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        .choice-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .choice-option {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .choice-option:hover { background: #f0f0f0; }
+        .choice-option.selected { background: #2c3e50; color: white; border-color: #2c3e50; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn-primary { background: #007aff; color: white; width: 100%; }
+        .btn-primary:hover { background: #0055bb; }
+        .btn-secondary { background: #e9e9ef; color: #000; }
+        .result-block {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+        }
+        .result-block.mastered { background: #d5f5e3; border-left: 4px solid #27ae60; }
+        .result-block.partial { background: #fef9e7; border-left: 4px solid #f39c12; }
+        .result-block.not_mastered { background: #fdedec; border-left: 4px solid #e74c3c; }
+        .result-block.full { background: #d5f5e3; border-left: 4px solid #27ae60; }
+        .recommendation {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e8f4fd;
+            border-radius: 0.75rem;
+        }
+        .recommendation ul { margin-left: 1.5rem; margin-top: 0.5rem; }
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .topic-btn {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .topic-btn:hover { background: #e9e9ef; }
+        .topic-btn.selected { background: #2c3e50; color: white; }
+        .hidden { display: none; }
+        .feedback {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+        }
+        .feedback.correct { background: #d5f5e3; color: #27ae60; }
+        .feedback.wrong { background: #fdedec; color: #e74c3c; }
+        .abort-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .abort-btn:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Шаг 1: Выбор темы -->
+    <div id="topic-selector" class="card">
+        <div class="card-header">
+            <h2>📋 Диагностика знаний</h2>
+            <span class="badge">Фрэд репетитор</span>
+        </div>
+        <p style="margin-bottom: 1rem;">Выбери тему для самопроверки.</p>
+        <div id="topics-list" class="topic-grid"><div class="loading">Загрузка тем...</div></div>
+        <button id="start-diagnostic-btn" class="btn btn-primary" style="margin-top: 1rem;" disabled>Начать диагностику</button>
+    </div>
+
+    <!-- Шаг 2: Процесс диагностики -->
+    <div id="diagnostic-process" class="hidden">
+        <div class="card">
+            <div class="card-header">
+                <h2 id="topic-title">Диагностика</h2>
+                <span class="badge" id="block-badge">Блок 1/4</span>
+            </div>
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <button id="abort-diagnostic-btn" class="abort-btn">✖ Прервать диагностику</button>
+            </div>
+            <div class="progress-steps">
+                <div id="step1" class="step active">🧠 Понимание</div>
+                <div id="step2" class="step">📝 Простые</div>
+                <div id="step3" class="step">⚡ Средние</div>
+                <div id="step4" class="step">⭐ Сложные</div>
+            </div>
+            <div id="question-area">
+                <div class="question" id="question-text">Загрузка вопроса...</div>
+                <div class="answer-area" id="answer-area"></div>
+                <button id="submit-answer-btn" class="btn btn-primary">Ответить</button>
+                <div id="feedback" class="feedback hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Шаг 3: Результаты -->
+    <div id="results-area" class="hidden">
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Результаты диагностики</h2>
+            </div>
+            <div id="results-content"></div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button id="new-diagnostic-btn" class="btn btn-primary" style="flex:1;">📋 Другая тема</button>
+                <button id="back-to-chat-btn" class="btn btn-secondary" style="flex:1; background:#2c3e50;">💬 К Фрэду</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userId = null;
+    let selectedTopicId = null;
+    let selectedTopicName = null;
+    let currentBlock = 1;
+    let currentTaskId = null;
+    let startTime = null;
+
+    function getUserId() {
+        let id = localStorage.getItem('fred_user_id');
+        if (!id) {
+            id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+            localStorage.setItem('fred_user_id', id);
+        }
+        return id;
+    }
+
+    async function loadTopics() {
+        userId = getUserId();
+        const topicsDiv = document.getElementById('topics-list');
+        try {
+            const response = await fetch('/api/diagnostic/topics');
+            const data = await response.json();
+            if (data.topics && data.topics.length > 0) {
+                topicsDiv.innerHTML = '';
+                data.topics.forEach(topic => {
+                    const btn = document.createElement('div');
+                    btn.className = 'topic-btn';
+                    btn.textContent = topic.name;
+                    btn.dataset.id = topic.id;
+                    btn.dataset.name = topic.name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        selectedTopicId = topic.id;
+                        selectedTopicName = topic.name;
+                        document.getElementById('start-diagnostic-btn').disabled = false;
+                    };
+                    topicsDiv.appendChild(btn);
+                });
+            } else {
+                topicsDiv.innerHTML = '<div class="loading">Нет доступных тем</div>';
+            }
+        } catch (error) {
+            topicsDiv.innerHTML = '<div class="loading">Ошибка загрузки тем</div>';
+        }
+    }
+
+    async function startDiagnostic() {
+        if (!selectedTopicId) return;
+        document.getElementById('topic-selector').classList.add('hidden');
+        document.getElementById('diagnostic-process').classList.remove('hidden');
+        document.getElementById('topic-title').textContent = selectedTopicName;
+        try {
+            const response = await fetch('/api/diagnostic/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, topic_id: selectedTopicId })
+            });
+            if (response.ok) loadNextQuestion();
+            else showError('Не удалось начать диагностику');
+        } catch (error) {
+            showError('Ошибка подключения');
+        }
+    }
+
+    async function loadNextQuestion() {
+        try {
+            const response = await fetch(`/api/diagnostic/next?user_id=${userId}`);
+            const data = await response.json();
+            if (data.completed) {
+                alert('Диагностика завершена!');
+                return;
+            }
+            if (data.error) { showError(data.error); return; }
+            currentBlock = data.block;
+            currentTaskId = data.task_id;
+            startTime = Date.now();
+            updateProgressSteps(currentBlock);
+            document.getElementById('block-badge').textContent = `Блок ${currentBlock}/4`;
+            document.getElementById('question-text').textContent = data.question;
+            renderAnswerField(data.question_type, data.options);
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('submit-answer-btn').disabled = false;
+            document.getElementById('submit-answer-btn').textContent = 'Ответить';
+        } catch (error) {
+            showError('Ошибка загрузки вопроса');
+        }
+    }
+
+    function updateProgressSteps(block) {
+        for (let i = 1; i <= 4; i++) {
+            const step = document.getElementById(`step${i}`);
+            if (i < block) step.className = 'step completed';
+            else if (i === block) step.className = 'step active';
+            else step.className = 'step';
+        }
+    }
+
+    function renderAnswerField(questionType, options) {
+        const answerArea = document.getElementById('answer-area');
+        if (questionType === 'choice' && options) {
+            let html = '<div class="choice-group">';
+            options.forEach((opt, idx) => {
+                html += `<div class="choice-option" data-value="${opt}">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+            });
+            html += '</div>';
+            answerArea.innerHTML = html;
+            document.querySelectorAll('.choice-option').forEach(opt => {
+                opt.onclick = () => {
+                    document.querySelectorAll('.choice-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    window.selectedChoice = opt.dataset.value;
+                };
+            });
+        } else if (questionType === 'number') {
+            answerArea.innerHTML = '<input type="number" id="answer-input" placeholder="Введи число...">';
+        } else {
+            answerArea.innerHTML = '<textarea id="answer-input" rows="3" placeholder="Напиши ответ..."></textarea>';
+        }
+    }
+
+    function getUserAnswer() {
+        const choiceSelected = document.querySelector('.choice-option.selected');
+        if (choiceSelected) return choiceSelected.dataset.value;
+        const input = document.getElementById('answer-input');
+        return input ? input.value : '';
+    }
+
+    async function submitAnswer() {
+        const userAnswer = getUserAnswer();
+        if (!userAnswer.trim()) { alert('Введи ответ!'); return; }
+        const responseTime = Math.round((Date.now() - startTime) / 1000);
+        document.getElementById('submit-answer-btn').disabled = true;
+        document.getElementById('submit-answer-btn').textContent = 'Проверка...';
+        try {
+            const response = await fetch('/api/diagnostic/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    task_id: currentTaskId,
+                    user_answer: userAnswer,
+                    response_time: responseTime
+                })
+            });
+            const data = await response.json();
+            if (data.diagnostic_completed) {
+                showResults(data);
+            } else if (data.block_completed) {
+                showBlockComplete(data.message);
+                loadNextQuestion();
+            } else {
+                const feedbackDiv = document.getElementById('feedback');
+                feedbackDiv.textContent = data.message;
+                feedbackDiv.className = `feedback ${data.correct ? 'correct' : 'wrong'}`;
+                feedbackDiv.classList.remove('hidden');
+                document.getElementById('submit-answer-btn').disabled = false;
+                document.getElementById('submit-answer-btn').textContent = 'Ответить';
+                setTimeout(() => loadNextQuestion(), 1500);
+            }
+        } catch (error) {
+            alert('Ошибка при отправке ответа');
+            document.getElementById('submit-answer-btn').disabled = false;
+            document.getElementById('submit-answer-btn').textContent = 'Ответить';
+        }
+    }
+
+    function showResults(data) {
+        document.getElementById('diagnostic-process').classList.add('hidden');
+        document.getElementById('results-area').classList.remove('hidden');
+        const evaluations = data.evaluations;
+        const recommendations = data.recommendations;
+        let html = `
+            <div class="result-block ${evaluations.block_1.status === 'full' ? 'full' : (evaluations.block_1.status === 'partial' ? 'partial' : 'not_mastered')}">
+                <strong>🧠 Понимание сути:</strong> ${evaluations.block_1.message}
+            </div>
+            <div class="result-block ${evaluations.block_2.status === 'mastered' ? 'mastered' : (evaluations.block_2.status === 'partial' ? 'partial' : 'not_mastered')}">
+                <strong>📝 Простые задачи:</strong> ${evaluations.block_2.message}
+            </div>
+            <div class="result-block ${evaluations.block_3.status === 'mastered' ? 'mastered' : (evaluations.block_3.status === 'partial' ? 'partial' : 'not_mastered')}">
+                <strong>⚡ Средние задачи:</strong> ${evaluations.block_3.message}
+            </div>
+            <div class="result-block ${evaluations.block_4.status === 'mastered' ? 'mastered' : (evaluations.block_4.status === 'partial' ? 'partial' : 'not_mastered')}">
+                <strong>⭐ Сложные задачи:</strong> ${evaluations.block_4.message}
+            </div>
+        `;
+        if (recommendations.length > 0) {
+            html += `<div class="recommendation"><strong>📌 Рекомендации от Фрэда:</strong><ul>${recommendations.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+        }
+        html += `<div style="margin-top: 1rem; text-align: center;"><strong>Общий уровень: ${data.overall_level} / 4</strong></div>`;
+        document.getElementById('results-content').innerHTML = html;
+    }
+
+    function showBlockComplete(message) {
+        const feedbackDiv = document.getElementById('feedback');
+        feedbackDiv.textContent = message;
+        feedbackDiv.className = 'feedback correct';
+        feedbackDiv.classList.remove('hidden');
+    }
+
+    function showError(message) {
+        const feedbackDiv = document.getElementById('feedback');
+        feedbackDiv.textContent = message;
+        feedbackDiv.className = 'feedback wrong';
+        feedbackDiv.classList.remove('hidden');
+        document.getElementById('submit-answer-btn').disabled = false;
+    }
+
+    function newDiagnostic() {
+        document.getElementById('results-area').classList.add('hidden');
+        document.getElementById('topic-selector').classList.remove('hidden');
+        selectedTopicId = null;
+        document.getElementById('start-diagnostic-btn').disabled = true;
+        document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('selected'));
+    }
+
+    // Обработчики
+    document.getElementById('start-diagnostic-btn').onclick = startDiagnostic;
+    document.getElementById('submit-answer-btn').onclick = submitAnswer;
+    document.getElementById('new-diagnostic-btn').onclick = newDiagnostic;
+    document.getElementById('back-to-chat-btn').onclick = () => window.location.href = '/';
+    document.getElementById('abort-diagnostic-btn').onclick = () => {
+        if (confirm('Прервать диагностику? Результаты не сохранятся.')) window.location.href = '/';
+    };
+
+    loadTopics();
+</script>
+</body>
+</html>
